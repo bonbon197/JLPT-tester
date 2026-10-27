@@ -254,7 +254,8 @@
   const EXAM = {
     20: { minutes: 15, label: 'Short · 20 questions · 15 min' },
     30: { minutes: 22, label: 'Standard · 30 questions · 22 min' },
-    40: { minutes: 30, label: 'Full · 40 questions · 30 min' }
+    40: { minutes: 30, label: 'Full · 40 questions · 30 min' },
+    60: { minutes: 45, label: 'Marathon · 60 questions · 45 min' }
   };
   const PASS = { 5: 0.44, 4: 0.5, 3: 0.53 };
 
@@ -391,7 +392,7 @@
         <h3>Daily amounts</h3>
         ${['kanji', 'vocab', 'grammar'].map((t) => `
           <div class="field row"><label for="pd-${t}">New ${App.TYPE_LABEL[t].toLowerCase()} per day</label>
-            <input type="range" id="pd-${t}" min="1" max="${t === 'grammar' ? 6 : 15}" value="${s.perDay[t]}"><output>${s.perDay[t]}</output></div>`).join('')}
+            <input type="range" id="pd-${t}" min="1" max="${t === 'grammar' ? 15 : 40}" value="${s.perDay[t]}"><output>${s.perDay[t]}</output></div>`).join('')}
         <p class="muted small">Changes apply from tomorrow (today's set is locked in). Use “+ more” on a study page to add items today.</p>
         <h3>Appearance</h3>
         <div class="field"><label for="theme">Theme</label>

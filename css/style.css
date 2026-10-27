@@ -175,7 +175,7 @@ input[type="range"] { accent-color: var(--accent); }
 .field.row { flex-direction: row; align-items: center; gap: 1rem; }
 .field.row label { flex: 1; text-transform: none; font-size: .95rem; color: var(--ink); }
 .field.row input { flex: 2; }
-.field.row output { width: 2ch; font-weight: 700; }
+.field.row output { width: 3ch; font-weight: 700; text-align: right; }
 .checks { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; padding: .4rem 0; }
 .checks label { text-transform: none; font-size: .95rem; color: var(--ink); font-weight: 500; display: inline-flex; gap: .4rem; align-items: center; letter-spacing: 0; }
 .switch { display: inline-flex; gap: .4rem; align-items: center; cursor: pointer; color: var(--muted); }
@@ -212,6 +212,7 @@ a.daily:hover, a.tool:hover { transform: translateY(-2px); border-color: var(--a
 .tools h3 { font-family: var(--jp); }
 .daily-quiz { display: flex; justify-content: space-between; gap: 1rem; align-items: center; flex-wrap: wrap; }
 .daily-quiz h2 { margin: 0 0 .3rem; }
+.daily-start { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
 
 /* ---------- flashcards ---------- */
 .flash { max-width: 640px; margin: 0 auto; }

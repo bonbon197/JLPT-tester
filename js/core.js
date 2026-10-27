@@ -54,10 +54,13 @@
 
   /* ---------------------------------------------------------------- storage */
   const KEY = 'jlpt-dojo-v1';
+  const DATA_VERSION = 2;
+  const OLD_PER_DAY = { kanji: 5, vocab: 5, grammar: 2 }; // v1 defaults, migrated on load
   const defaults = () => ({
+    v: DATA_VERSION,
     level: 5,
     theme: 'auto',
-    perDay: { kanji: 5, vocab: 5, grammar: 2 },
+    perDay: { kanji: 15, vocab: 20, grammar: 5 },
     items: {},
     daily: {},
     activity: {},
@@ -72,6 +75,12 @@
         const d = defaults();
         S.s = Object.assign(d, o);
         S.s.perDay = Object.assign(defaults().perDay, o.perDay || {});
+        // v1 -> v2: bump the old small defaults to the new larger ones (custom values are kept)
+        if (!o.v) {
+          const same = Object.keys(OLD_PER_DAY).every((k) => (o.perDay || OLD_PER_DAY)[k] === OLD_PER_DAY[k]);
+          if (same) S.s.perDay = defaults().perDay;
+        }
+        S.s.v = DATA_VERSION;
       }
     } catch (e) {
       console.warn('Could not read saved data', e);
@@ -99,7 +108,7 @@
   const db = (App.db = { kanji: [], vocab: [], grammar: [], particle: [], verb: [], byId: {} });
   const add = (type, item) => {
     item.type = type;
-    if (db.byId[item.id]) console.warn('Duplicate item id', item.id);
+    if (db.byId[item.id]) { console.warn('Duplicate item skipped', item.id); return; }
     db.byId[item.id] = item;
     db[type].push(item);
   };

@@ -178,7 +178,7 @@
         </div>`;
       $('#quiz', root).addEventListener('click', () =>
         App.runner.start(root, {
-          questions: Q.many(items, Math.max(5, Math.min(10, items.length * 2))),
+          questions: Q.many(items, Math.max(5, Math.min(20, items.length))),
           title: `Quick quiz — ${TYPE_META[type].name}`,
           kind: 'session', level: L(), back: o.back, backLabel: 'Back'
         }));
@@ -263,12 +263,14 @@
       function browse(filter = '') {
         const level = L();
         const f = filter.trim().toLowerCase();
-        const items = db.pool(type, level).filter((it) => !f || JSON.stringify(Object.values(it)).toLowerCase().includes(f));
+        const matches = db.pool(type, level).filter((it) => !f || JSON.stringify(Object.values(it)).toLowerCase().includes(f));
+        const CAP = 150;
+        const items = matches.slice(0, CAP);
         root.innerHTML = `
           <h1>${m.jp} ${m.name} <span class="level-pill">N${level}</span></h1>
           ${tabsHtml([['study', 'Study'], ['browse', 'Browse all']], tab)}
           <input class="search" id="q" placeholder="Search meaning, reading, character…" value="${esc(filter)}">
-          <p class="muted small">${items.length} item${items.length === 1 ? '' : 's'} · <span class="dot new"></span>new <span class="dot learning"></span>learning <span class="dot known"></span>mastered</p>
+          <p class="muted small">${matches.length} item${matches.length === 1 ? '' : 's'}${matches.length > CAP ? ` (showing the first ${CAP} — search to narrow down)` : ''} · <span class="dot new"></span>new <span class="dot learning"></span>learning <span class="dot known"></span>mastered</p>
           <div class="browse">
             ${items.map((it) => type === 'kanji'
               ? `<div class="b-item"><div class="b-main">${esc(it.char)}</div><div class="b-body"><b>${esc(it.meaning)}</b><div class="small">音 ${esc(it.on)} · 訓 ${esc(it.kun)}</div><div class="small muted">${esc(it.word)} (${esc(it.wordReading)}) ${esc(it.wordMeaning)}</div></div><span class="dot ${statusOf(it.id)}"></span></div>`
@@ -397,7 +399,14 @@
           <p class="muted">${items.length} question${items.length === 1 ? '' : 's'} on today's kanji, vocabulary and grammar${studied < items.length ? ' (study the flashcards first for best results)' : ''}.</p>
           ${best !== null ? `<p class="badge ok">Best today: ${best}%</p>` : ''}
         </div>
-        <button class="btn primary big" id="daily" ${items.length ? '' : 'disabled'}>Start daily quiz</button>
+        <div class="daily-start">
+          <div class="field"><label for="dcount">Questions</label>
+            <select id="dcount">
+              ${[10, 20, 30].filter((n) => n < items.length).map((n) => `<option value="${n}" ${n === 20 ? 'selected' : ''}>${n}</option>`).join('')}
+              <option value="${items.length}" ${items.length <= 20 ? 'selected' : ''}>All ${items.length}</option>
+            </select></div>
+          <button class="btn primary big" id="daily" ${items.length ? '' : 'disabled'}>Start daily quiz</button>
+        </div>
       </div>
 
       <h2>Custom quiz</h2>
@@ -416,15 +425,19 @@
             <option value="level">Everything at N${level}</option>
           </select></div>
         <div class="field"><label for="ccount">Questions</label>
-          <select id="ccount"><option>5</option><option selected>10</option><option>20</option><option>30</option></select></div>
+          <select id="ccount"><option>5</option><option selected>10</option><option>20</option><option>30</option><option>50</option></select></div>
         <button class="btn primary" id="custom">Start</button>
       </div>
       <p class="muted small">Looking for particles? Try the <a href="#/particles">Particle Tester</a>. For a full timed test, use the <a href="#/exam">Mock Exam</a>.</p>`;
 
-    $('#daily', root).addEventListener('click', () =>
+    $('#daily', root).addEventListener('click', () => {
+      const n = Math.min(+$('#dcount', root).value, items.length);
+      // spread the questions across kanji / vocab / grammar rather than taking one type only
+      const picked = n >= items.length ? items : sample(items, n);
       App.runner.start(root, {
-        questions: Q.many(items, items.length), title: 'Daily quiz', kind: 'daily', level, back: '#/quiz', backLabel: 'Back to quizzes'
-      }));
+        questions: Q.many(picked, picked.length), title: 'Daily quiz', kind: 'daily', level, back: '#/quiz', backLabel: 'Back to quizzes'
+      });
+    });
 
     $('#custom', root).addEventListener('click', () => {
       const type = $('#ctype', root).value, scope = $('#cscope', root).value, n = +$('#ccount', root).value;

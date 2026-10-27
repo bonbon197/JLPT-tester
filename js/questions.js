@@ -80,20 +80,26 @@
   ];
 
   /* ------------------------------------------------------------- particles */
-  const BASIC = ['は', 'が', 'を', 'に', 'で', 'へ', 'と', 'も', 'の', 'から', 'まで', 'より'];
+  const CORE = ['は', 'が', 'を', 'に', 'で', 'へ', 'と', 'も', 'の', 'から', 'まで', 'より'];
   const FINAL = ['か', 'ね', 'よ'];
-  const COMPOUND = ['について', 'として', 'によって', 'にとって', 'に対して', 'によると', 'だけでなく'];
+  const COMPOUND = [
+    'について', 'として', 'によって', 'にとって', 'に対して', 'によると', 'だけでなく',
+    'に関して', 'に比べて', 'をはじめ', 'を通じて', 'に加えて', 'にかけて', 'をめぐって', 'のおかげで'
+  ];
 
+  /**
+   * Distractors are chosen by class so that they stay clearly wrong:
+   * core particles are mixed only with other core particles, compounds with compounds, etc.
+   */
   function particleChoices(p) {
     const ok = new Set([p.a, ...p.alt]);
     const answers = db.upTo('particle', p.level).flatMap((x) => [x.a, ...x.alt]);
-    let pool = [...new Set([...BASIC, ...answers])].filter((x) => !ok.has(x));
-    const isFinal = FINAL.includes(p.a);
-    const isCompound = COMPOUND.includes(p.a);
-    if (isCompound) pool = pool.filter((x) => COMPOUND.includes(x));
-    else if (isFinal) pool = pool.filter((x) => FINAL.includes(x) || BASIC.slice(0, 3).includes(x));
-    else pool = pool.filter((x) => !COMPOUND.includes(x) && !FINAL.includes(x));
-    return sample(pool, 5);
+    const all = [...new Set([...CORE, ...answers])].filter((x) => !ok.has(x));
+    const extras = all.filter((x) => !CORE.includes(x) && !FINAL.includes(x) && !COMPOUND.includes(x));
+    if (COMPOUND.includes(p.a)) return sample(all.filter((x) => COMPOUND.includes(x)), 5);
+    if (FINAL.includes(p.a)) return sample(all.filter((x) => FINAL.includes(x)).concat(['は', 'を', 'に', 'の']), 5);
+    if (CORE.includes(p.a)) return sample(CORE.filter((x) => !ok.has(x)), 5);
+    return sample(extras, 2).concat(sample(CORE.filter((x) => !ok.has(x)), 3));
   }
 
   function particleGen(p) {
