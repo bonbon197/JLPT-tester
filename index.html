@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JLPT Dojo — N5 · N4 · N3 practice</title>
+  <meta name="description" content="Daily kanji, vocabulary and grammar, particle drills, quizzes and mock exams for JLPT N5–N3.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/"><span class="brand-mark">道</span><span class="brand-name">JLPT Dojo</span></a>
+    <div class="level-switch" id="levelSwitch" aria-label="JLPT level"></div>
+    <button id="themeBtn" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">🌓</button>
+  </header>
+  <nav id="nav" class="nav" aria-label="Main"></nav>
+
+  <main id="app" class="container"></main>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- data -->
+  <script src="js/data/kanji.js"></script>
+  <script src="js/data/vocab.js"></script>
+  <script src="js/data/grammar.js"></script>
+  <script src="js/data/particles.js"></script>
+  <script src="js/data/verbs.js"></script>
+  <script src="js/data/kana.js"></script>
+  <!-- app -->
+  <script src="js/core.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/runner.js"></script>
+  <script src="js/views-study.js"></script>
+  <script src="js/views-tools.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
