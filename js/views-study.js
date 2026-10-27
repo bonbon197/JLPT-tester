@@ -260,23 +260,30 @@
         if (rev) rev.addEventListener('click', () => flashSession(root, type, due, { title: `${m.name} review`, back }));
       }
 
-      function browse(filter = '') {
+      function browse(filter = '', shown = 120) {
         const level = L();
         const f = filter.trim().toLowerCase();
         const matches = db.pool(type, level).filter((it) => !f || JSON.stringify(Object.values(it)).toLowerCase().includes(f));
-        const CAP = 150;
-        const items = matches.slice(0, CAP);
+        const items = matches.slice(0, shown);
+        const left = matches.length - items.length;
         root.innerHTML = `
           <h1>${m.jp} ${m.name} <span class="level-pill">N${level}</span></h1>
           ${tabsHtml([['study', 'Study'], ['browse', 'Browse all']], tab)}
           <input class="search" id="q" placeholder="Search meaning, reading, character…" value="${esc(filter)}">
-          <p class="muted small">${matches.length} item${matches.length === 1 ? '' : 's'}${matches.length > CAP ? ` (showing the first ${CAP} — search to narrow down)` : ''} · <span class="dot new"></span>new <span class="dot learning"></span>learning <span class="dot known"></span>mastered</p>
+          <p class="muted small">${matches.length} item${matches.length === 1 ? '' : 's'}${left > 0 ? ` (showing ${items.length} — search or load more)` : ''} · <span class="dot new"></span>new <span class="dot learning"></span>learning <span class="dot known"></span>mastered</p>
           <div class="browse">
             ${items.map((it) => type === 'kanji'
               ? `<div class="b-item"><div class="b-main">${esc(it.char)}</div><div class="b-body"><b>${esc(it.meaning)}</b><div class="small">音 ${esc(it.on)} · 訓 ${esc(it.kun)}</div><div class="small muted">${esc(it.word)} (${esc(it.wordReading)}) ${esc(it.wordMeaning)}</div></div><span class="dot ${statusOf(it.id)}"></span></div>`
               : `<div class="b-item"><div class="b-main sm">${esc(it.word)}</div><div class="b-body"><b>${esc(it.meaning)}</b> <span class="reading">${esc(it.reading)}</span> ${speakBtn(it.reading)}<div class="small muted">${esc(it.ex)} — ${esc(it.exEn)}</div></div><span class="dot ${statusOf(it.id)}"></span></div>`).join('')}
-          </div>`;
+          </div>
+          ${left > 0 ? `<p class="center"><button class="btn" id="more">Show ${Math.min(200, left)} more (${left} left)</button></p>` : ''}`;
         bind();
+        const more = $('#more', root);
+        if (more) more.addEventListener('click', () => {
+          const y = window.scrollY;
+          browse(filter, shown + 200);
+          window.scrollTo(0, y);
+        });
         const q = $('#q', root);
         q.addEventListener('input', () => {
           const pos = q.selectionStart;
